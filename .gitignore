@@ -104,3 +104,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+/paperless-docker/consume/
+/paperless-docker/data/
+/paperless-docker/export/
+/paperless-docker/media/

@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation 'org.ini4j:ini4j:0.5.4'
+    implementation'org.postgresql:postgresql:42.6.0'
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

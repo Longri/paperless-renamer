@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'de.longri'
-version = '1.0-SNAPSHOT'
+version = '1.0'
 
 repositories {
     mavenCentral()
@@ -19,4 +19,19 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'de.longri.paperless_renamer.Main' // Hauptklasse
+        )
+    }
+
+    // Fat-JAR Inhalt: alle .class und .jar Dependencies
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

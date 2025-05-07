@@ -13,14 +13,23 @@ public class Main {
             System.exit(1);
         }
 
+
+        long intervall = Long.parseLong(ENV.INTERVAL_IN_SEC) * 1000;
+        DAO dao = null;
         try {
-            DAO dao = new DAO();
-            ENV.setLastRun(dao.moveChangedFiles(ENV.PAPERLESS_LAST_MODIFIED));
-
-
+            dao = new DAO();
         } catch (SQLException e) {
             e.printStackTrace();
             System.exit(1);
+        }
+
+        while (true) {
+            ENV.setLastRun(dao.moveChangedFiles(ENV.PAPERLESS_LAST_MODIFIED));
+            try {
+                Thread.sleep(intervall);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

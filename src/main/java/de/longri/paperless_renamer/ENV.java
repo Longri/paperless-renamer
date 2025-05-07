@@ -16,6 +16,7 @@ public class ENV {
     public static String PAPERLESS_FILENAME_FORMAT;
     public static String PAPERLESS_STORAGE_PATH_FORMAT;
 
+    public static String INTERVAL_IN_SEC;
     public static String PAPERLESS_LAST_MODIFIED;
 
     private static Ini ini;
@@ -31,10 +32,14 @@ public class ENV {
         PAPERLESS_LAST_MODIFIED = ini.get("SERVICE", "PAPERLESS_LAST_MODIFIED");
         PAPERLESS_FILENAME_FORMAT = ini.get("PAPERLESS", "PAPERLESS_FILENAME_FORMAT");
         PAPERLESS_STORAGE_PATH_FORMAT = ini.get("PAPERLESS", "PAPERLESS_STORAGE_PATH_FORMAT");
+
+        INTERVAL_IN_SEC = ini.get("RENAMER", "INTERVAL_IN_SEC");
+        if (INTERVAL_IN_SEC == null) INTERVAL_IN_SEC = "300";
     }
 
     public static void setLastRun(String lastRun) {
         ini.put("SERVICE", "PAPERLESS_LAST_MODIFIED", lastRun);
+        PAPERLESS_LAST_MODIFIED = lastRun;
         try {
             ini.store();
         } catch (IOException e) {

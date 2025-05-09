@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,7 @@ public class DAO {
     }
 
     public void loadUserTagMap() {
+        UserTagIdMap.clear();
         String sql = "SELECT id, name FROM documents_tag";
         try (var statement = connection.createStatement();
              var resultSet = statement.executeQuery(sql)) {
@@ -68,6 +70,7 @@ public class DAO {
     }
 
     public void loadUserMap() {
+        UserIdMap.clear();
         String sql = "SELECT id, username FROM auth_user";
         try (var statement = connection.createStatement();
              var resultSet = statement.executeQuery(sql)) {
@@ -85,6 +88,7 @@ public class DAO {
     }
 
     public void loadCorrospondentMap() {
+        CorrespondentIdMap.clear();
         String sql = "SELECT id, name FROM documents_correspondent";
         try (var statement = connection.createStatement();
              var resultSet = statement.executeQuery(sql)) {
@@ -102,6 +106,7 @@ public class DAO {
     }
 
     public void loadDocumenttypeMap() {
+        DocumenttypeIdMap.clear();
         String sql = "SELECT id, name FROM documents_documenttype";
         try (var statement = connection.createStatement();
              var resultSet = statement.executeQuery(sql)) {
@@ -142,7 +147,7 @@ public class DAO {
 
                     String correspondentName = CorrespondentIdMap.get(correspondentId);
                     String documentTypeName = DocumenttypeIdMap.get(documentTypeId);
-                    String userName = UserIdMap.get(ownerId);
+
 
 
                     //simplify created date
@@ -157,7 +162,8 @@ public class DAO {
 
 
                     //check document have user name Tag
-                    checkDocumentUserTag(id);
+                    int userId = checkDocumentUserTag(id);
+                    String userName = UserIdMap.get(userId);
 
                     LocalDateTime createdDateTime = parseDateTime(created);
 
@@ -171,8 +177,6 @@ public class DAO {
                         System.out.println("Change for " + id + " " + title + " from " + archiveFilename + " to " + generatedArchiveFileName);
                         moveFile(id, archiveFilename, generatedArchiveFileName);
                     }
-
-
                 }
             }
         } catch (SQLException e) {
@@ -219,7 +223,7 @@ public class DAO {
     }
 
 
-    private void checkDocumentUserTag(int document_id) {
+    private int checkDocumentUserTag(int document_id) {
 
         System.out.println("Check document " + document_id + " have user tag");
 
@@ -236,20 +240,22 @@ public class DAO {
 
                     // check if tag is user tag
                     if (UserTagIdMap.containsKey(tag_id)) {
+                        AtomicInteger retUserId = new AtomicInteger(-1);
                         String taggedUserName = UserTagIdMap.get(tag_id);
                         System.out.println("Document " + document_id + " has user tag " + tag_id + " with username: " + taggedUserName);
                         UserIdMap.keySet().stream().filter(userId -> taggedUserName.equals(UserIdMap.get(userId))).forEach(userId -> {
                             // set this userId as Dokument Owner
                             setDokumentOwner(document_id, superUserId, userId);
+                            retUserId.set(userId);
                         });
-
-
+                        return retUserId.get();
                     }
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed to process documents", e);
         }
+        return -1;
     }
 
     private void setDokumentOwner(int dokument_id, int superUserId, int userID) {

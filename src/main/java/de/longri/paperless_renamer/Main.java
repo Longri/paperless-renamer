@@ -24,6 +24,10 @@ public class Main {
         }
 
         while (true) {
+
+            // must reload maps in case of changes like new Correspondent
+            dao.loadMaps();
+
             ENV.setLastRun(dao.moveChangedFiles(ENV.PAPERLESS_LAST_MODIFIED));
             try {
                 Thread.sleep(intervall);
